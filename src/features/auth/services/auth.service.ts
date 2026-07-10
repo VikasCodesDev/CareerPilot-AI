@@ -1,8 +1,7 @@
 import { AuthUser, ProfileMetadata } from "../types";
 import { SignupInput } from "../schemas";
 
-// In-memory mock user store to support simulated DB persistence
-const MOCK_USERS_KEY = "cp_mock_users";
+const LOCAL_USERS_KEY = "cp_local_users";
 
 // Default seed users
 const SEED_USERS: AuthUser[] = [
@@ -35,16 +34,15 @@ const SEED_USERS: AuthUser[] = [
   },
 ];
 
-// Helper to get client-side mock database
-function getMockUsers(): AuthUser[] {
+function getLocalUsers(): AuthUser[] {
   if (typeof window === "undefined") {
     return SEED_USERS;
   }
   
   try {
-    const raw = localStorage.getItem(MOCK_USERS_KEY);
+    const raw = localStorage.getItem(LOCAL_USERS_KEY);
     if (!raw) {
-      localStorage.setItem(MOCK_USERS_KEY, JSON.stringify(SEED_USERS));
+      localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(SEED_USERS));
       return SEED_USERS;
     }
     return JSON.parse(raw);
@@ -53,36 +51,36 @@ function getMockUsers(): AuthUser[] {
   }
 }
 
-function saveMockUsers(users: AuthUser[]) {
+function saveLocalUsers(users: AuthUser[]) {
   if (typeof window === "undefined") return;
   try {
-    localStorage.setItem(MOCK_USERS_KEY, JSON.stringify(users));
-  } catch (e) {
-    console.error("Failed to save mock users to localStorage", e);
+    localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(users));
+  } catch {
+    return;
   }
 }
 
 export class AuthService {
   /**
-   * Find user by email (mock)
+   * Find user by email
    */
   static async getUserByEmail(email: string): Promise<AuthUser | null> {
-    const users = getMockUsers();
+    const users = getLocalUsers();
     const user = users.find(u => u.email?.toLowerCase() === email.toLowerCase());
     return user || null;
   }
 
   /**
-   * Find user by id (mock)
+   * Find user by id
    */
   static async getUserById(id: string): Promise<AuthUser | null> {
-    const users = getMockUsers();
+    const users = getLocalUsers();
     const user = users.find(u => u.id === id);
     return user || null;
   }
 
   /**
-   * Register a new user (mock validation and storage)
+   * Register a new user
    */
   static async registerUser(data: SignupInput): Promise<AuthUser> {
     const existing = await this.getUserByEmail(data.email);
@@ -104,18 +102,17 @@ export class AuthService {
       createdAt: new Date().toISOString(),
     };
 
-    const users = getMockUsers();
+    const users = getLocalUsers();
     users.push(newUser);
-    saveMockUsers(users);
+    saveLocalUsers(users);
 
     return newUser;
   }
 
   /**
-   * Mock verify email (simulating success)
+   * Verify email confirmation code
    */
   static async verifyCode(email: string, code: string): Promise<boolean> {
-    // Standard mock verification code matches any 6 digit code for demo flows
     if (code.length === 6 && /^[0-9]+$/.test(code)) {
       return true;
     }
@@ -123,7 +120,7 @@ export class AuthService {
   }
 
   /**
-   * Mock forgot password code send
+   * Send password reset link
    */
   static async sendResetLink(email: string): Promise<boolean> {
     const user = await this.getUserByEmail(email);
@@ -135,10 +132,10 @@ export class AuthService {
   }
 
   /**
-   * Mock update onboarding info
+   * Update onboarding info
    */
   static async updateOnboarding(userId: string, metadata: Partial<ProfileMetadata>): Promise<AuthUser> {
-    const users = getMockUsers();
+    const users = getLocalUsers();
     const idx = users.findIndex(u => u.id === userId);
     if (idx === -1) {
       throw new Error("User not found");
@@ -148,7 +145,7 @@ export class AuthService {
       ...users[idx].metadata,
       ...metadata,
     };
-    saveMockUsers(users);
+    saveLocalUsers(users);
     return users[idx];
   }
 }

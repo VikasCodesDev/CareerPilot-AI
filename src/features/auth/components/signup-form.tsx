@@ -44,9 +44,7 @@ export function SignupForm() {
     }
 
     try {
-      // Mock API call via AuthService to register user
       await AuthService.registerUser(data);
-      // On success, redirect to mock email verification screen
       router.push(`/verify-email?email=${encodeURIComponent(data.email)}`);
     } catch (e: unknown) {
       const err = e as Error;

@@ -5,6 +5,10 @@ import GitHubProvider from "next-auth/providers/github";
 import { AuthService } from "../services/auth.service";
 import { UserRole, ProfileMetadata } from "../types";
 
+const isProduction = process.env.NODE_ENV === "production";
+const demoCredentialsEnabled =
+  !isProduction && process.env.ALLOW_DEMO_CREDENTIALS !== "false";
+
 export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
@@ -13,7 +17,8 @@ export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "google_client_id_placeholder",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "google_client_secret_placeholder",
+      clientSecret:
+        process.env.GOOGLE_CLIENT_SECRET || "google_client_secret_placeholder",
       // Map extra fields if needed or role mapping
       profile(profile) {
         return {
@@ -31,7 +36,8 @@ export const authOptions: NextAuthOptions = {
     }),
     GitHubProvider({
       clientId: process.env.GITHUB_CLIENT_ID || "github_client_id_placeholder",
-      clientSecret: process.env.GITHUB_CLIENT_SECRET || "github_client_secret_placeholder",
+      clientSecret:
+        process.env.GITHUB_CLIENT_SECRET || "github_client_secret_placeholder",
       profile(profile) {
         return {
           id: profile.id.toString(),
@@ -58,15 +64,16 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
-          // Find standard mock user or existing mock user
           const user = await AuthService.getUserByEmail(credentials.email);
-          
+
           if (!user) {
-            // For prototype demonstration, if login doesn't match and was credentials,
-            // let any account with Password123 successfully authenticate & create a new mock user
-            if (credentials.password === "Password123") {
+            if (
+              demoCredentialsEnabled &&
+              credentials.password === "Password123"
+            ) {
               const [namePart] = credentials.email.split("@");
-              const formattedName = namePart.charAt(0).toUpperCase() + namePart.slice(1);
+              const formattedName =
+                namePart.charAt(0).toUpperCase() + namePart.slice(1);
               return {
                 id: `user-${Math.random().toString(36).substr(2, 9)}`,
                 name: formattedName,
@@ -78,10 +85,11 @@ export const authOptions: NextAuthOptions = {
                 } as ProfileMetadata,
               };
             }
-            throw new Error("No user found with this email. Use password 'Password123' to auto-register on login.");
+            throw new Error(
+              "No user found with this email. Register an account or use a valid credential.",
+            );
           }
 
-          // In standard flows, checking simple preset pwd
           if (credentials.password !== "Password123") {
             throw new Error("Invalid password credentials.");
           }
@@ -106,9 +114,12 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.role = (user.role as UserRole) || "user";
-        token.metadata = (user.metadata as ProfileMetadata) || { completedOnboarding: false, skills: [] };
+        token.metadata = (user.metadata as ProfileMetadata) || {
+          completedOnboarding: false,
+          skills: [],
+        };
       }
-      
+
       // Handle session updates (e.g. onboarding completion updates)
       if (trigger === "update" && session?.metadata) {
         token.metadata = {
@@ -116,7 +127,7 @@ export const authOptions: NextAuthOptions = {
           ...session.metadata,
         };
       }
-      
+
       return token;
     },
     async session({ session, token }) {
@@ -133,5 +144,10 @@ export const authOptions: NextAuthOptions = {
     signOut: "/",
     error: "/auth/error",
   },
-  secret: process.env.AUTH_SECRET || "fallback-secret-for-jwt-signing-careerpilot-ai",
+  secret:
+    process.env.NEXTAUTH_SECRET ||
+    process.env.AUTH_SECRET ||
+    (isProduction
+      ? undefined
+      : "fallback-secret-for-jwt-signing-careerpilot-ai"),
 };

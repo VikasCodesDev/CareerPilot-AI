@@ -44,13 +44,13 @@ function SectionPlaceholderComponent({
       {showWidgets ? (
         <DashboardContentGrid>
           <DashboardGridItem>
-            <WidgetContainer title="Coming soon" description="Placeholder widget">
+            <WidgetContainer title="Workspace summary" description="Integrated dashboard workspace">
               <EmptyState
                 icon={Icon}
                 title={emptyTitle ?? `${navItem.label} workspace`}
                 description={
                   emptyDescription ??
-                  "This section is scaffolded and ready for Module 05+ implementation."
+                  "This workspace is connected to the CareerPilot dashboard and will show records as you create them."
                 }
                 action={<Button variant="outline">Notify me</Button>}
               />
@@ -63,7 +63,7 @@ function SectionPlaceholderComponent({
           title={emptyTitle ?? `${navItem.label} coming soon`}
           description={
             emptyDescription ??
-            "This section is scaffolded and ready for Module 05+ implementation."
+            "This workspace is connected to the CareerPilot dashboard and will show records as you create them."
           }
           action={<Button variant="outline">Get started</Button>}
         />

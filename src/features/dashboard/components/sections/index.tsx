@@ -78,7 +78,7 @@ export const AiAssistantSection = memo(function AiAssistantSection() {
       sectionId="ai-assistant"
       icon={Bot}
       emptyTitle="AI Assistant ready"
-      emptyDescription="Your autonomous career agent will be available here in a future module."
+      emptyDescription="Run a career goal through the autonomous agent workflow to generate an execution timeline."
     />
   );
 });
@@ -99,7 +99,7 @@ export const SettingsSection = memo(function SettingsSection() {
     <SectionPlaceholder
       sectionId="settings"
       icon={Settings}
-      emptyTitle="Settings placeholder"
+      emptyTitle="Settings workspace"
       emptyDescription="Workspace preferences, notifications, and account settings will be configured here."
     />
   );

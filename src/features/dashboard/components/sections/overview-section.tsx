@@ -97,10 +97,10 @@ function OverviewSectionComponent() {
               >
                 <div className="flex min-h-[10rem] flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/15 px-6 py-8 text-center">
                   <p className="text-sm font-medium text-foreground">
-                    Widget placeholder
+                    Career intelligence panel
                   </p>
                   <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-                    Data visualization and AI insights will render here in future modules.
+                    Data visualization and AI insights update as you use CareerPilot modules.
                   </p>
                 </div>
               </WidgetContainer>

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle, FileText, Loader2 } from "lucide-react";
+import { ArrowLeft, FileText, Loader2 } from "lucide-react";
 import { WorkspaceHeader } from "@/features/dashboard/components/content/workspace-header";
 import { DragDropZone } from "@/features/resume/components/DragDropZone";
 import { UploadProgress, UploadProgressStatus } from "@/features/resume/components/UploadProgress";
@@ -39,9 +39,8 @@ export default function ResumeUploadPage() {
         if (json.success) {
           setExistingResumes(json.data.resumes || []);
         }
-      } catch (err: unknown) {
-        // Silently fail or log, non-critical for new upload
-        console.error("Failed to load resumes for options selection", err);
+      } catch {
+        setExistingResumes([]);
       } finally {
         setIsFetchingOptions(false);
       }

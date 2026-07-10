@@ -2,11 +2,12 @@
 
 import { ChevronDown, LogOut, Settings, User } from "lucide-react";
 import Link from "next/link";
+import { signOut, useSession } from "next-auth/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { DUMMY_USER } from "@/features/dashboard/config/dashboard-nav";
+import { DEFAULT_DASHBOARD_USER } from "@/features/dashboard/config/dashboard-nav";
 import { dropdownVariants, dashboardTransition } from "@/features/dashboard/lib/motion";
 import { cn } from "@/lib/utils";
 
@@ -15,11 +16,21 @@ type UserProfileDropdownProps = {
 };
 
 function UserProfileDropdownComponent({ className }: UserProfileDropdownProps) {
+  const { data: session } = useSession();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const close = useCallback(() => setOpen(false), []);
   const toggle = useCallback(() => setOpen((prev) => !prev), []);
+  const userName = session?.user?.name || DEFAULT_DASHBOARD_USER.name;
+  const userEmail = session?.user?.email || DEFAULT_DASHBOARD_USER.email;
+  const userRole = session?.user?.role || DEFAULT_DASHBOARD_USER.role;
+  const initials = userName
+    .split(" ")
+    .map((part) => part.charAt(0))
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   useEffect(() => {
     if (!open) return;
@@ -60,14 +71,14 @@ function UserProfileDropdownComponent({ className }: UserProfileDropdownProps) {
           className="flex size-7 items-center justify-center rounded-full gradient-primary text-xs font-semibold text-primary-foreground"
           aria-hidden="true"
         >
-          {DUMMY_USER.initials}
+          {initials}
         </span>
         <span className="hidden max-w-[7rem] truncate text-left sm:block">
           <span className="block text-sm leading-tight font-medium">
-            {DUMMY_USER.name}
+            {userName}
           </span>
           <span className="block text-xs text-muted-foreground">
-            {DUMMY_USER.role}
+            {userRole}
           </span>
         </span>
         <ChevronDown
@@ -92,9 +103,9 @@ function UserProfileDropdownComponent({ className }: UserProfileDropdownProps) {
             className="absolute top-[calc(100%+0.5rem)] right-0 z-[var(--z-overlay)] w-56 overflow-hidden rounded-xl border border-border bg-popover p-1 shadow-lg"
           >
             <div className="border-b border-border px-3 py-2.5">
-              <p className="text-sm font-medium">{DUMMY_USER.name}</p>
+              <p className="text-sm font-medium">{userName}</p>
               <p className="truncate text-xs text-muted-foreground">
-                {DUMMY_USER.email}
+                {userEmail}
               </p>
             </div>
             <div className="py-1">
@@ -125,7 +136,10 @@ function UserProfileDropdownComponent({ className }: UserProfileDropdownProps) {
                 type="button"
                 role="menuitem"
                 className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                onClick={close}
+                onClick={() => {
+                  close();
+                  void signOut({ callbackUrl: "/" });
+                }}
               >
                 <LogOut className="size-4" aria-hidden="true" />
                 Sign out

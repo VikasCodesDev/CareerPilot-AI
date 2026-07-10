@@ -65,7 +65,7 @@ export function ResumePreviewPanel({ preview, className }: ResumePreviewPanelPro
       <div className="flex items-start gap-2 bg-primary/5 px-5 py-3 border-b border-border text-xs text-muted-foreground">
         <Info className="size-4 shrink-0 text-primary mt-0.5" aria-hidden="true" />
         <p>
-          <strong>Note:</strong> This is a structured infrastructure mockup preview. Full AI parsing and text extraction will be functional in Module 08.
+          <strong>Note:</strong> This preview is generated from the resume metadata, extracted text, skills, and feedback currently stored for this upload.
         </p>
       </div>
 

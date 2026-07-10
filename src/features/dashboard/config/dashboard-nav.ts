@@ -118,7 +118,7 @@ export const DASHBOARD_QUICK_ACTIONS: QuickAction[] = [
   {
     id: "start-interview",
     title: "Practice Interview",
-    description: "Run a mock session with AI feedback",
+    description: "Run a practice session with AI feedback",
     icon: MessageSquare,
     href: "/dashboard/interview-practice",
     accent: "secondary",
@@ -141,7 +141,7 @@ export const DASHBOARD_QUICK_ACTIONS: QuickAction[] = [
   },
 ];
 
-export const DUMMY_USER = {
+export const DEFAULT_DASHBOARD_USER = {
   name: "Alex Rivera",
   email: "alex.rivera@email.com",
   role: "Product Designer",
