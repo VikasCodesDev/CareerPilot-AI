@@ -3,6 +3,7 @@ import type { LucideIcon } from "lucide-react";
 export type DashboardSectionId =
   | "overview"
   | "resume-score"
+  | "resume-analysis"
   | "career-roadmap"
   | "skill-gap"
   | "interview-practice"

@@ -37,6 +37,13 @@ export const DASHBOARD_NAV_ITEMS: DashboardNavItem[] = [
     badge: "New",
   },
   {
+    id: "resume-analysis",
+    label: "ATS Analysis",
+    href: "/dashboard/resume-analysis",
+    icon: FileText,
+    description: "Detailed ATS score, keywords, and reports",
+  },
+  {
     id: "career-roadmap",
     label: "Career Roadmap",
     href: "/dashboard/career-roadmap",
@@ -105,7 +112,7 @@ export const DASHBOARD_QUICK_ACTIONS: QuickAction[] = [
     title: "Analyze Resume",
     description: "Get an instant ATS score and improvement tips",
     icon: FileText,
-    href: "/dashboard/resume-score",
+    href: "/dashboard/resume-analysis",
     accent: "primary",
   },
   {
