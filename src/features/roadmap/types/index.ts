@@ -63,7 +63,6 @@ export interface RoadmapResource {
   type: "Video" | "Reading" | "Practice" | "Project" | "Documentation";
   phase: RoadmapPhase;
   description: string;
-  placeholder: true;
 }
 
 export interface RoadmapTask {

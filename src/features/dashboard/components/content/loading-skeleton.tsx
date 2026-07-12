@@ -2,39 +2,28 @@
 
 import { memo } from "react";
 
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 type SkeletonProps = {
   className?: string;
 };
 
-function SkeletonBlock({ className }: SkeletonProps) {
-  return (
-    <div
-      className={cn(
-        "animate-shimmer rounded-lg bg-muted/60",
-        className
-      )}
-      aria-hidden="true"
-    />
-  );
-}
-
 function WidgetSkeletonComponent({ className }: SkeletonProps) {
   return (
     <div
-      className={cn("surface-card overflow-hidden", className)}
+      className={cn("workspace-card overflow-hidden", className)}
       role="status"
       aria-label="Loading widget"
     >
-      <div className="border-b border-border px-5 py-4">
-        <SkeletonBlock className="h-4 w-1/3" />
-        <SkeletonBlock className="mt-2 h-3 w-1/2" />
+      <div className="border-b border-white/[0.05] px-5 py-4">
+        <Skeleton className="h-4 w-1/3" />
+        <Skeleton className="mt-2 h-3 w-1/2" />
       </div>
       <div className="space-y-3 p-5">
-        <SkeletonBlock className="h-24 w-full" />
-        <SkeletonBlock className="h-3 w-full" />
-        <SkeletonBlock className="h-3 w-4/5" />
+        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-3 w-full" />
+        <Skeleton className="h-3 w-4/5" />
       </div>
     </div>
   );
@@ -54,7 +43,7 @@ function SidebarSkeletonComponent() {
   return (
     <div className="space-y-2 px-3" aria-hidden="true">
       {Array.from({ length: 8 }).map((_, index) => (
-        <SkeletonBlock key={index} className="h-10 w-full rounded-xl" />
+        <Skeleton key={index} className="h-10 w-full" />
       ))}
     </div>
   );
@@ -63,8 +52,8 @@ function SidebarSkeletonComponent() {
 function HeaderSkeletonComponent() {
   return (
     <div className="space-y-3" aria-hidden="true">
-      <SkeletonBlock className="h-8 w-48" />
-      <SkeletonBlock className="h-4 w-72" />
+      <Skeleton className="h-8 w-48" />
+      <Skeleton className="h-4 w-72" />
     </div>
   );
 }

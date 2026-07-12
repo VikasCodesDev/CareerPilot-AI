@@ -33,31 +33,34 @@ function SidebarNavItemComponent({
       aria-current={isActive ? "page" : undefined}
       title={collapsed ? item.label : undefined}
       className={cn(
-        "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium no-underline transition-colors",
+        "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium no-underline transition-all duration-200",
         isActive
-          ? "bg-primary/12 text-foreground"
-          : "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          ? "bg-gradient-to-r from-primary/15 to-accent/5 text-white shadow-[0_0_24px_rgba(139,92,246,0.12)]"
+          : "text-zinc-500 hover:bg-white/[0.04] hover:text-zinc-100"
       )}
     >
       {isActive ? (
         <motion.span
           layoutId="sidebar-active-indicator"
-          className="absolute inset-y-1.5 left-0 w-0.5 rounded-full bg-primary"
+          className="absolute inset-y-1.5 left-0 w-0.5 rounded-full bg-gradient-to-b from-primary via-secondary to-accent shadow-[0_0_8px_rgba(139,92,246,0.6)]"
           transition={{ type: "spring", stiffness: 380, damping: 30 }}
         />
       ) : null}
-      <Icon
+      <span
         className={cn(
-          "size-[1.125rem] shrink-0",
-          isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
+          "flex size-8 shrink-0 items-center justify-center rounded-lg border transition-all duration-200",
+          isActive
+            ? "border-primary/25 bg-primary/10 text-primary shadow-[0_0_12px_rgba(139,92,246,0.2)]"
+            : "border-transparent bg-white/[0.02] text-zinc-600 group-hover:border-white/[0.06] group-hover:text-zinc-300"
         )}
-        aria-hidden="true"
-      />
+      >
+        <Icon className="size-[1.05rem]" aria-hidden="true" />
+      </span>
       {!collapsed ? (
         <>
           <span className="flex-1 truncate">{item.label}</span>
           {item.badge ? (
-            <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[0.625rem] font-semibold text-primary">
+            <span className="rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[0.625rem] font-bold text-primary shadow-[0_0_10px_rgba(139,92,246,0.15)]">
               {item.badge}
             </span>
           ) : null}

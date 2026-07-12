@@ -58,7 +58,7 @@ function CommandPaletteComponent({ open, onClose }: CommandPaletteProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={dashboardTransition}
-            className="fixed inset-0 z-[var(--z-modal)] bg-background/70 backdrop-blur-sm"
+            className="fixed inset-0 z-[var(--z-modal)] bg-black/60 backdrop-blur-sm"
             aria-label="Close command palette"
             onClick={onClose}
           />
@@ -68,7 +68,7 @@ function CommandPaletteComponent({ open, onClose }: CommandPaletteProps) {
             exit="exit"
             variants={dropdownVariants}
             transition={dashboardTransition}
-            className="fixed top-[12%] left-1/2 z-[calc(var(--z-modal)+1)] w-[min(calc(100%-2rem),36rem)] -translate-x-1/2 overflow-hidden rounded-2xl border border-border bg-popover shadow-2xl"
+            className="workspace-dialog fixed top-[12%] left-1/2 z-[calc(var(--z-modal)+1)] w-[min(calc(100%-2rem),36rem)] -translate-x-1/2 overflow-hidden"
             role="dialog"
             aria-modal="true"
             aria-label="Command palette"
@@ -78,13 +78,13 @@ function CommandPaletteComponent({ open, onClose }: CommandPaletteProps) {
               className="flex flex-col"
               loop
             >
-              <div className="flex items-center gap-2 border-b border-border px-4">
-                <Search className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+              <div className="flex items-center gap-2 border-b border-white/[0.06] px-4">
+                <Search className="size-4 shrink-0 text-primary" aria-hidden="true" />
                 <Command.Input
                   placeholder="Search sections, actions…"
                   className="h-12 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
                 />
-                <kbd className="hidden rounded border border-border px-1.5 py-0.5 text-[0.65rem] text-muted-foreground sm:inline">
+                <kbd className="hidden rounded-lg border border-white/[0.08] bg-white/[0.04] px-1.5 py-0.5 text-[0.65rem] text-muted-foreground sm:inline">
                   ESC
                 </kbd>
               </div>
@@ -95,7 +95,7 @@ function CommandPaletteComponent({ open, onClose }: CommandPaletteProps) {
 
                 <Command.Group
                   heading="Navigation"
-                  className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground"
+                  className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:tracking-wide [&_[cmdk-group-heading]]:text-muted-foreground"
                 >
                   {COMMAND_PALETTE_ITEMS.map((item) => {
                     const Icon = item.icon;
@@ -105,9 +105,11 @@ function CommandPaletteComponent({ open, onClose }: CommandPaletteProps) {
                         value={item.id}
                         keywords={[item.label]}
                         onSelect={handleSelect}
-                        className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm aria-selected:bg-muted"
+                        className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors aria-selected:bg-primary/10 aria-selected:text-foreground"
                       >
-                        <Icon className="size-4 text-muted-foreground" aria-hidden="true" />
+                        <span className="flex size-8 items-center justify-center rounded-lg bg-white/[0.04]">
+                          <Icon className="size-4 text-primary" aria-hidden="true" />
+                        </span>
                         {item.label}
                       </Command.Item>
                     );
@@ -116,7 +118,7 @@ function CommandPaletteComponent({ open, onClose }: CommandPaletteProps) {
 
                 <Command.Group
                   heading="Account"
-                  className="mt-2 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground"
+                  className="mt-2 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:tracking-wide [&_[cmdk-group-heading]]:text-muted-foreground"
                 >
                   {COMMAND_PALETTE_ACTIONS.map((action) => {
                     const Icon = action.icon;
@@ -126,9 +128,11 @@ function CommandPaletteComponent({ open, onClose }: CommandPaletteProps) {
                         value={action.id}
                         keywords={[action.label]}
                         onSelect={handleSelect}
-                        className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm aria-selected:bg-muted"
+                        className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors aria-selected:bg-primary/10 aria-selected:text-foreground"
                       >
-                        <Icon className="size-4 text-muted-foreground" aria-hidden="true" />
+                        <span className="flex size-8 items-center justify-center rounded-lg bg-white/[0.04]">
+                          <Icon className="size-4 text-primary" aria-hidden="true" />
+                        </span>
                         {action.label}
                       </Command.Item>
                     );

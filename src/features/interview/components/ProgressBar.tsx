@@ -1,3 +1,4 @@
+import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 
 type ProgressBarProps = {
@@ -7,20 +8,12 @@ type ProgressBarProps = {
 };
 
 export function ProgressBar({ value, label = "Progress", className }: ProgressBarProps) {
-  const normalized = Math.min(100, Math.max(0, Math.round(value)));
-
   return (
-    <div className={cn("space-y-2", className)}>
-      <div className="flex items-center justify-between text-xs text-muted-foreground">
-        <span>{label}</span>
-        <span>{normalized}%</span>
-      </div>
-      <div className="h-2 rounded-full bg-muted">
-        <div
-          className="h-full rounded-full bg-gradient-to-r from-primary to-secondary transition-all"
-          style={{ width: `${normalized}%` }}
-        />
-      </div>
-    </div>
+    <Progress
+      value={value}
+      label={label}
+      showValue
+      className={cn(className)}
+    />
   );
 }

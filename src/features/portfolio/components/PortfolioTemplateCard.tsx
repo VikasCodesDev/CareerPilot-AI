@@ -8,13 +8,15 @@ type PortfolioTemplateCardProps = {
 
 export function PortfolioTemplateCard({ template }: PortfolioTemplateCardProps) {
   return (
-    <article className="rounded-2xl border border-border bg-muted/20 p-4 transition hover:border-primary/40">
+    <article className="workspace-card p-4 transition-colors hover:border-primary/20">
       <div className="flex items-start gap-3">
-        <LayoutTemplate className="mt-0.5 size-5 text-primary" aria-hidden="true" />
+        <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <LayoutTemplate className="size-4" aria-hidden="true" />
+        </div>
         <div>
           <h3 className="text-sm font-semibold">{template.name}</h3>
           <p className="mt-1 text-xs text-muted-foreground">{template.description}</p>
-          <p className="mt-3 text-xs text-primary">{template.theme}</p>
+          <p className="mt-3 text-xs font-medium text-primary">{template.theme}</p>
         </div>
       </div>
     </article>

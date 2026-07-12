@@ -62,13 +62,13 @@ function UserProfileDropdownComponent({ className }: UserProfileDropdownProps) {
       <Button
         variant="ghost"
         size="sm"
-        className="gap-2 pr-2 pl-1.5"
+        className="gap-2 rounded-xl border border-transparent pr-2 pl-1.5 hover:border-white/[0.08] hover:bg-white/[0.04]"
         aria-expanded={open}
         aria-haspopup="menu"
         onClick={toggle}
       >
         <span
-          className="flex size-7 items-center justify-center rounded-full gradient-primary text-xs font-semibold text-primary-foreground"
+          className="flex size-8 items-center justify-center rounded-full gradient-primary text-xs font-semibold text-primary-foreground shadow-[0_0_16px_rgba(139,92,246,0.35)]"
           aria-hidden="true"
         >
           {initials}
@@ -100,9 +100,9 @@ function UserProfileDropdownComponent({ className }: UserProfileDropdownProps) {
             exit="exit"
             variants={dropdownVariants}
             transition={dashboardTransition}
-            className="absolute top-[calc(100%+0.5rem)] right-0 z-[var(--z-overlay)] w-56 overflow-hidden rounded-xl border border-border bg-popover p-1 shadow-lg"
+            className="workspace-dialog absolute top-[calc(100%+0.5rem)] right-0 z-[var(--z-overlay)] w-56 overflow-hidden p-1"
           >
-            <div className="border-b border-border px-3 py-2.5">
+            <div className="border-b border-white/[0.06] px-3 py-2.5">
               <p className="text-sm font-medium">{userName}</p>
               <p className="truncate text-xs text-muted-foreground">
                 {userEmail}
@@ -112,7 +112,7 @@ function UserProfileDropdownComponent({ className }: UserProfileDropdownProps) {
               <Link
                 href="/dashboard/settings"
                 role="menuitem"
-                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground no-underline transition-colors hover:bg-muted"
+                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground no-underline transition-colors hover:bg-white/[0.05]"
                 onClick={close}
               >
                 <User className="size-4 text-muted-foreground" aria-hidden="true" />
@@ -121,7 +121,7 @@ function UserProfileDropdownComponent({ className }: UserProfileDropdownProps) {
               <Link
                 href="/dashboard/settings"
                 role="menuitem"
-                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground no-underline transition-colors hover:bg-muted"
+                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground no-underline transition-colors hover:bg-white/[0.05]"
                 onClick={close}
               >
                 <Settings
@@ -131,11 +131,11 @@ function UserProfileDropdownComponent({ className }: UserProfileDropdownProps) {
                 Settings
               </Link>
             </div>
-            <div className="border-t border-border py-1">
+            <div className="border-t border-white/[0.06] py-1">
               <button
                 type="button"
                 role="menuitem"
-                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-white/[0.05] hover:text-foreground"
                 onClick={() => {
                   close();
                   void signOut({ callbackUrl: "/" });

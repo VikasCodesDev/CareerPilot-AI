@@ -123,13 +123,35 @@ export class RoadmapGeneratorService {
   }
 
   private static createResources(targetRole: string): RoadmapResource[] {
-    return ROADMAP_PHASES.map((phase, index) => ({
-      id: generateId(`resource-${index + 1}`),
-      title: `${phase} resource pack`,
-      type: index % 3 === 0 ? "Documentation" : index % 3 === 1 ? "Practice" : "Project",
-      phase,
-      description: `Placeholder resource collection for ${targetRole} ${phase.toLowerCase()} learning.`,
-      placeholder: true,
-    }));
+    return ROADMAP_PHASES.map((phase, index) => {
+      const type =
+        phase === "Foundation"
+          ? "Documentation"
+          : phase === "Intermediate"
+          ? "Practice"
+          : phase === "Projects"
+          ? "Project"
+          : phase === "Interview Preparation"
+          ? "Practice"
+          : "Reading";
+
+      const descriptions = {
+        Foundation: `Study core ${targetRole} concepts with curated tutorials, articles, and introductory exercises.`,
+        Intermediate: `Build deeper ${targetRole} skills through guided practice, coding challenges, and intermediate projects.`,
+        Projects: `Complete project-based work that demonstrates practical ${targetRole} ability and portfolio-ready outcomes.`,
+        "Advanced": `Refine advanced ${targetRole} techniques with real-world architecture and optimization exercises.`,
+        "Interview Preparation": `Practice role-specific interview questions, STAR frameworks, and speaking points for ${targetRole} interviews.`,
+        Portfolio: `Document your best ${targetRole} work using portfolio copy, project summaries, and showcase assets.`,
+        "Job Applications": `Prepare application materials, craft targeted resumes, and practice follow-ups for ${targetRole} opportunities.`,
+      } as const;
+
+      return {
+        id: generateId(`resource-${index + 1}`),
+        title: `${phase} resources for ${targetRole}`,
+        type,
+        phase,
+        description: descriptions[phase],
+      };
+    });
   }
 }

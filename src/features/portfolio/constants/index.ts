@@ -14,7 +14,7 @@ export const PORTFOLIO_SECTION_TYPES = [
   "Social Links",
   "Testimonials",
   "Career Timeline",
-  "GitHub Stats Placeholder",
+  "GitHub Stats",
   "Coding Profiles",
   "Blogs",
   "Volunteer Work",

@@ -24,7 +24,7 @@ function DashboardTopbarComponent({
   return (
     <header
       className={cn(
-        "sticky top-0 z-[var(--z-sticky)] flex h-16 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur-xl sm:gap-4 sm:px-6",
+        "workspace-topbar sticky top-0 z-[var(--z-sticky)] flex h-16 items-center gap-3 border-b border-white/[0.06] bg-zinc-950/75 px-4 backdrop-blur-2xl sm:gap-4 sm:px-6",
         className
       )}
     >
@@ -43,7 +43,7 @@ function DashboardTopbarComponent({
         className="flex items-center gap-2 no-underline lg:hidden"
         aria-label="CareerPilot dashboard"
       >
-        <div className="flex size-8 items-center justify-center rounded-lg gradient-primary">
+        <div className="flex size-8 items-center justify-center rounded-xl gradient-primary shadow-[0_0_16px_rgba(139,92,246,0.3)]">
           <Zap className="size-4 text-primary-foreground" aria-hidden="true" />
         </div>
       </Link>
@@ -62,7 +62,7 @@ function DashboardTopbarComponent({
           aria-label="Open command palette"
         >
           <span className="text-muted-foreground">Command</span>
-          <kbd className="rounded border border-border bg-muted/50 px-1.5 py-0.5 text-[0.65rem] font-medium">
+          <kbd className="rounded-lg border border-white/[0.08] bg-white/[0.04] px-1.5 py-0.5 text-[0.65rem] font-medium">
             ⌘K
           </kbd>
         </Button>

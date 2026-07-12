@@ -5,29 +5,33 @@ const GEMINI_ENDPOINT =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
 
 function hasUsableKey(value: string | undefined): value is string {
-  return Boolean(value && !value.includes("placeholder") && value.length > 12);
+  return Boolean(value && !value.startsWith("__careerpilot_build_") && value.length > 12);
 }
 
 export class AIProviderService {
   static async execute(request: AIWorkflowRequest): Promise<AIProviderResult> {
+    const attempts: AIProviderResult[] = [];
     const groqKey = process.env.GROQ_API_KEY;
+    const geminiKey = process.env.GEMINI_API_KEY;
+
     if (hasUsableKey(groqKey)) {
       const result = await this.callGroq(request, groqKey);
       if (result.status === "success") return result;
+      attempts.push(result);
     }
 
-    const geminiKey = process.env.GEMINI_API_KEY;
     if (hasUsableKey(geminiKey)) {
       const result = await this.callGemini(request, geminiKey);
       if (result.status === "success") return result;
+      attempts.push(result);
     }
 
-    return {
-      provider: "deterministic",
-      status: "fallback",
-      content: this.createDeterministicProviderContent(request),
-      executionTimeMs: 0,
-    };
+    const attemptedProviders = attempts.map((attempt) => attempt.provider).join(", ");
+    throw new Error(
+      attemptedProviders
+        ? `Configured AI provider request failed: ${attemptedProviders}.`
+        : "No configured AI provider key is available. Set GROQ_API_KEY or GEMINI_API_KEY.",
+    );
   }
 
   private static async callGroq(request: AIWorkflowRequest, apiKey: string): Promise<AIProviderResult> {
@@ -113,9 +117,5 @@ export class AIProviderService {
         executionTimeMs: Date.now() - started,
       };
     }
-  }
-
-  private static createDeterministicProviderContent(request: AIWorkflowRequest): string {
-    return `Deterministic execution for ${request.goal}: ${request.request}`;
   }
 }

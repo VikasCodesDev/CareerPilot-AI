@@ -20,7 +20,7 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
   const { open: paletteOpen, openPalette, closePalette } = useCommandPalette();
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="workspace-shell flex min-h-screen">
       <a
         href="#dashboard-main"
         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground"
@@ -36,7 +36,11 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
       <MobileNavDrawer open={mobileOpen} onClose={closeNav} />
       <CommandPalette open={paletteOpen} onClose={closePalette} />
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="relative flex min-w-0 flex-1 flex-col">
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-primary/[0.04] to-transparent"
+          aria-hidden="true"
+        />
         <DashboardTopbar
           onOpenMobileNav={openNav}
           onOpenCommandPalette={openPalette}
@@ -44,7 +48,7 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 
         <main
           id="dashboard-main"
-          className="scrollbar-subtle flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8"
+          className="scrollbar-subtle relative flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8"
         >
           {children}
         </main>

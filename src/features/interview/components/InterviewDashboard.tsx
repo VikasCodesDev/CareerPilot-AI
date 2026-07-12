@@ -2,9 +2,9 @@
 
 import { motion } from "framer-motion";
 
+import { EmptyState } from "@/features/interview/components/EmptyState";
 import { AnswerEditor } from "@/features/interview/components/AnswerEditor";
 import { DifficultySelector } from "@/features/interview/components/DifficultySelector";
-import { EmptyState } from "@/features/interview/components/EmptyState";
 import { FeedbackCard } from "@/features/interview/components/FeedbackCard";
 import { HistoryCard } from "@/features/interview/components/HistoryCard";
 import { InterviewHero } from "@/features/interview/components/InterviewHero";
@@ -24,12 +24,6 @@ type InterviewDashboardProps = {
   authenticated: boolean;
 };
 
-const fadeIn = {
-  initial: { opacity: 0, y: 16 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.35 },
-};
-
 export function InterviewDashboard({
   session,
   history,
@@ -41,7 +35,11 @@ export function InterviewDashboard({
 
   return (
     <div className="mx-auto w-full max-w-[var(--container-wide)] space-y-8">
-      <motion.div {...fadeIn}>
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35 }}
+      >
         <InterviewHero session={session} progress={progress} />
       </motion.div>
 
@@ -70,8 +68,8 @@ export function InterviewDashboard({
 
       <div className="grid gap-6 xl:grid-cols-[1fr_320px]">
         <main className="space-y-6">
-          <section className="surface-card space-y-4 p-6">
-            <h2 className="text-xl font-semibold">Session Profile</h2>
+          <section className="workspace-card space-y-4 p-6">
+            <h2 className="text-xl font-semibold tracking-tight">Session Profile</h2>
             <DifficultySelector value={session?.difficulty ?? null} />
             <InterviewTypeSelector value={session?.interviewType ?? null} />
           </section>
@@ -79,21 +77,21 @@ export function InterviewDashboard({
           <AnswerEditor disabled={!authenticated || !session || session.status === "completed"} />
           <FeedbackCard feedback={latestFeedback} />
           <SessionSummary session={session} />
-          <section className="surface-card p-6">
-            <h2 className="text-xl font-semibold">Recommendations</h2>
+          <section className="workspace-card p-6">
+            <h2 className="text-xl font-semibold tracking-tight">Recommendations</h2>
             <div className="mt-5 grid gap-3 lg:grid-cols-2">
               {recommendations.map((recommendation) => (
                 <RecommendationCard key={recommendation} recommendation={recommendation} />
               ))}
             </div>
           </section>
-          <section className="surface-card p-6">
-            <h2 className="text-xl font-semibold">Interview History</h2>
+          <section className="workspace-card p-6">
+            <h2 className="text-xl font-semibold tracking-tight">Interview History</h2>
             <div className="mt-5 grid gap-3 lg:grid-cols-2">
               {history.length > 0 ? (
                 history.map((item) => <HistoryCard key={item.id} item={item} />)
               ) : (
-                <p className="rounded-2xl border border-dashed border-border p-6 text-sm text-muted-foreground">
+                <p className="rounded-2xl border border-dashed border-white/[0.1] p-6 text-sm text-muted-foreground">
                   No previous interview sessions found.
                 </p>
               )}

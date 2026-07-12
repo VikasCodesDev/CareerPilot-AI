@@ -25,6 +25,7 @@ export const uploadRequestSchema = z.object({
     .number()
     .positive("File size must be positive")
     .max(MAX_FILE_SIZE, "File size exceeds the limit of 5MB."),
+  fileContentBase64: z.string().min(1, "File content must be provided as a base64 string."),
   parentResumeId: z.string().optional().or(z.literal("")),
 });
 

@@ -27,18 +27,22 @@ export function SectionHeader({
       )}
     >
       {eyebrow ? (
-        <p className="mb-3 text-sm font-medium tracking-wide text-primary uppercase">
-          {eyebrow}
-        </p>
+        <div className={cn("mb-4 inline-flex items-center gap-2", align === "center" && "justify-center w-full")}>
+          <span className="h-px w-6 bg-gradient-to-r from-transparent to-primary/50" aria-hidden="true" />
+          <p className="text-xs font-bold tracking-[0.2em] text-primary uppercase">
+            {eyebrow}
+          </p>
+          <span className="h-px w-6 bg-gradient-to-l from-transparent to-primary/50" aria-hidden="true" />
+        </div>
       ) : null}
       <h2
         id={`${id}-heading`}
-        className="text-h2 text-balance font-bold tracking-tight"
+        className="text-h2 text-balance font-extrabold tracking-tight text-white"
       >
         {title}
       </h2>
       {description ? (
-        <p className="mt-4 text-body text-pretty text-muted-foreground">
+        <p className="mt-5 text-body text-pretty text-zinc-400 leading-relaxed">
           {description}
         </p>
       ) : null}

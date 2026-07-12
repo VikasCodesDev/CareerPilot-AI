@@ -1,151 +1,96 @@
-import { AuthUser, ProfileMetadata } from "../types";
 import { SignupInput } from "../schemas";
+import { AuthUser, ProfileMetadata } from "../types";
 
-const LOCAL_USERS_KEY = "cp_local_users";
-
-// Default seed users
-const SEED_USERS: AuthUser[] = [
-  {
-    id: "user-vikas",
-    name: "Vikas DEV",
-    email: "vikas@dev.com",
-    image: null,
-    role: "user",
-    metadata: {
-      completedOnboarding: true,
-      careerGoal: "Full Stack Internship in 6 months",
-      targetRole: "Full Stack Engineer",
-      experienceLevel: "entry",
-      skills: ["React", "Next.js", "TypeScript", "Node.js", "Tailwind CSS"],
-    },
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "user-guest",
-    name: "Guest User",
-    email: "guest@careerpilot.ai",
-    image: null,
-    role: "user",
-    metadata: {
-      completedOnboarding: false,
-      skills: [],
-    },
-    createdAt: new Date().toISOString(),
-  },
-];
-
-function getLocalUsers(): AuthUser[] {
-  if (typeof window === "undefined") {
-    return SEED_USERS;
-  }
-  
-  try {
-    const raw = localStorage.getItem(LOCAL_USERS_KEY);
-    if (!raw) {
-      localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(SEED_USERS));
-      return SEED_USERS;
-    }
-    return JSON.parse(raw);
-  } catch {
-    return SEED_USERS;
-  }
+interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  error?: string;
 }
 
-function saveLocalUsers(users: AuthUser[]) {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(users));
-  } catch {
-    return;
+function normalizeError(response: unknown): string {
+  if (!response || typeof response !== "object") {
+    return "Unknown error occurred.";
   }
+
+  const payload = response as { error?: unknown; message?: unknown };
+  if (typeof payload.error === "string") {
+    return payload.error;
+  }
+  if (typeof payload.message === "string") {
+    return payload.message;
+  }
+  return "An unexpected error occurred.";
 }
 
 export class AuthService {
-  /**
-   * Find user by email
-   */
-  static async getUserByEmail(email: string): Promise<AuthUser | null> {
-    const users = getLocalUsers();
-    const user = users.find(u => u.email?.toLowerCase() === email.toLowerCase());
-    return user || null;
-  }
-
-  /**
-   * Find user by id
-   */
-  static async getUserById(id: string): Promise<AuthUser | null> {
-    const users = getLocalUsers();
-    const user = users.find(u => u.id === id);
-    return user || null;
-  }
-
-  /**
-   * Register a new user
-   */
   static async registerUser(data: SignupInput): Promise<AuthUser> {
-    const existing = await this.getUserByEmail(data.email);
-    if (existing) {
-      throw new Error("A user with this email already exists");
-    }
-
-    const newUser: AuthUser = {
-      id: `user-${Math.random().toString(36).substr(2, 9)}`,
-      name: data.name,
-      email: data.email,
-      image: null,
-      role: "user",
-      metadata: {
-        completedOnboarding: false,
-        careerGoal: data.careerGoal || "",
-        skills: [],
+    const response = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-      createdAt: new Date().toISOString(),
-    };
+      body: JSON.stringify(data),
+      credentials: "same-origin",
+    });
 
-    const users = getLocalUsers();
-    users.push(newUser);
-    saveLocalUsers(users);
-
-    return newUser;
+    const payload: ApiResponse<AuthUser> = await response.json();
+    if (!payload.success) {
+      throw new Error(normalizeError(payload));
+    }
+    return payload.data as AuthUser;
   }
 
-  /**
-   * Verify email confirmation code
-   */
   static async verifyCode(email: string, code: string): Promise<boolean> {
-    if (code.length === 6 && /^[0-9]+$/.test(code)) {
-      return true;
-    }
-    return false;
-  }
+    const response = await fetch("/api/auth/verify", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, code }),
+      credentials: "same-origin",
+    });
 
-  /**
-   * Send password reset link
-   */
-  static async sendResetLink(email: string): Promise<boolean> {
-    const user = await this.getUserByEmail(email);
-    if (!user) {
-      throw new Error("No account matches this email address.");
+    const payload: ApiResponse<null> = await response.json();
+    if (!payload.success) {
+      throw new Error(normalizeError(payload));
     }
-    // Simulation of successful dispatch
     return true;
   }
 
-  /**
-   * Update onboarding info
-   */
-  static async updateOnboarding(userId: string, metadata: Partial<ProfileMetadata>): Promise<AuthUser> {
-    const users = getLocalUsers();
-    const idx = users.findIndex(u => u.id === userId);
-    if (idx === -1) {
-      throw new Error("User not found");
-    }
+  static async sendResetLink(email: string): Promise<void> {
+    const response = await fetch("/api/auth/forgot", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+      credentials: "same-origin",
+    });
 
-    users[idx].metadata = {
-      ...users[idx].metadata,
-      ...metadata,
-    };
-    saveLocalUsers(users);
-    return users[idx];
+    const payload: ApiResponse<null> = await response.json();
+    if (!payload.success) {
+      throw new Error(normalizeError(payload));
+    }
+  }
+
+  static async updateOnboarding(
+    userId: string,
+    metadata: Partial<ProfileMetadata>,
+  ): Promise<AuthUser> {
+    const response = await fetch("/api/auth/onboarding", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId, metadata }),
+      credentials: "same-origin",
+    });
+
+    const payload: ApiResponse<AuthUser> = await response.json();
+    if (!payload.success) {
+      throw new Error(normalizeError(payload));
+    }
+    return payload.data as AuthUser;
   }
 }

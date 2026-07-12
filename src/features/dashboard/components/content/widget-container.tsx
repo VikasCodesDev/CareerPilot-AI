@@ -30,15 +30,15 @@ function WidgetContainerComponent({
       variants={cardHover}
       transition={dashboardTransition}
       className={cn(
-        "surface-card flex flex-col overflow-hidden",
+        "workspace-card flex flex-col overflow-hidden",
         span === "wide" && "md:col-span-2",
         span === "full" && "md:col-span-2 xl:col-span-3",
         className
       )}
     >
-      <header className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
+      <header className="flex items-start justify-between gap-4 border-b border-white/[0.05] px-5 py-4">
         <div>
-          <h3 className="text-base font-semibold">{title}</h3>
+          <h3 className="text-base font-semibold tracking-tight">{title}</h3>
           {description ? (
             <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
           ) : null}

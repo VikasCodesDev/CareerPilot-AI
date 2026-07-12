@@ -4,6 +4,7 @@ import {
   ArchitectureSection,
   AutonomousWorkflowSection,
   CareerJourneySection,
+  CtaSection,
   FaqSection,
   FeaturesGridSection,
   FooterSection,
@@ -40,6 +41,7 @@ export default function HomePage() {
         <RoadmapPreviewSection />
         <TestimonialsSection />
         <FaqSection />
+        <CtaSection />
       </main>
       <FooterSection />
     </>

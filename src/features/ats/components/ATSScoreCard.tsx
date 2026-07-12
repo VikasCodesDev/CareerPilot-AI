@@ -3,7 +3,7 @@
 import { memo } from "react";
 import { motion } from "framer-motion";
 
-import { ProgressBar } from "@/features/ats/components/ProgressBar";
+import { Progress } from "@/components/ui/progress";
 
 type ATSScoreCardProps = {
   title: string;
@@ -16,7 +16,7 @@ function ATSScoreCardComponent({ title, score, description }: ATSScoreCardProps)
     <motion.article
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="surface-card p-5"
+      className="workspace-card p-5"
     >
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -25,9 +25,9 @@ function ATSScoreCardComponent({ title, score, description }: ATSScoreCardProps)
             <p className="mt-1 text-sm text-muted-foreground">{description}</p>
           ) : null}
         </div>
-        <span className="text-2xl font-semibold">{score}</span>
+        <span className="text-2xl font-bold tabular-nums text-gradient">{score}</span>
       </div>
-      <ProgressBar value={score} className="mt-4" />
+      <Progress value={score} className="mt-4" showValue />
     </motion.article>
   );
 }

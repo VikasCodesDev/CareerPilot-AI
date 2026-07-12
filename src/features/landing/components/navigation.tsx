@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, Moon, Sun, X, Zap } from "lucide-react";
+import { Menu, Moon, Sun, X } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -49,7 +49,7 @@ export function Navigation() {
       <header
         className={cn(
           "sticky top-0 z-[var(--z-sticky)] transition-all duration-300",
-          scrolled ? "glass-subtle shadow-sm" : "bg-transparent"
+          scrolled ? "border-b border-white/[0.04] bg-zinc-950/85 backdrop-blur-xl shadow-sm" : "bg-transparent"
         )}
       >
         <nav
@@ -58,13 +58,15 @@ export function Navigation() {
         >
           <Link
             href="/"
-            className="flex items-center gap-2 no-underline"
+            className="flex items-center gap-2.5 no-underline group"
             aria-label="CareerPilot AI home"
           >
-            <div className="flex size-8 items-center justify-center rounded-lg gradient-primary">
-              <Zap className="size-4 text-primary-foreground" aria-hidden="true" />
+            <div className="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent shadow-[0_0_12px_rgba(139,92,246,0.3)] group-hover:shadow-[0_0_18px_rgba(217,70,239,0.45)] transition-shadow">
+              <svg viewBox="0 0 24 24" fill="none" className="size-4" aria-hidden="true">
+                <path d="M13 2L4.09 12.11a1 1 0 00.86 1.62L11 13l-2 9 8.91-10.11a1 1 0 00-.86-1.62L11 11l2-9z" fill="white" />
+              </svg>
             </div>
-            <span className="text-lg font-bold tracking-tight">CareerPilot</span>
+            <span className="text-base font-extrabold tracking-tight text-white">CareerPilot<span className="text-primary">.AI</span></span>
           </Link>
 
           <div className="hidden items-center gap-1 md:flex">
@@ -99,7 +101,7 @@ export function Navigation() {
               </Button>
             )}
 
-            <Button className="hidden sm:inline-flex" render={<Link href="#features" />}>
+            <Button className="hidden sm:inline-flex bg-gradient-to-r from-primary to-accent hover:shadow-[0_0_20px_rgba(139,92,246,0.4)]" render={<Link href="/login" />}>
               Get Started
             </Button>
 
@@ -139,9 +141,9 @@ export function Navigation() {
                   </Link>
                 ))}
                 <Button
-                  className="mt-4 w-full"
+                  className="mt-4 w-full bg-gradient-to-r from-primary to-accent"
                   size="lg"
-                  render={<Link href="#features" onClick={closeMobile} />}
+                  render={<Link href="/login" onClick={closeMobile} />}
                 >
                   Get Started
                 </Button>

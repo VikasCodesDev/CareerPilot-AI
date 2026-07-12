@@ -22,7 +22,7 @@ function SearchBarComponent({
         Search dashboard
       </label>
       <Search
-        className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+        className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground"
         aria-hidden="true"
       />
       <input
@@ -31,10 +31,10 @@ function SearchBarComponent({
         readOnly
         onFocus={onFocus}
         placeholder={placeholder}
-        className="focus-ring h-9 w-full rounded-xl border border-border bg-muted/40 pr-12 pl-9 text-sm text-foreground placeholder:text-muted-foreground transition-colors hover:bg-muted/60 focus:bg-background"
+        className="workspace-input focus-ring h-10 w-full cursor-pointer pr-14 pl-10"
         aria-label="Search dashboard"
       />
-      <kbd className="pointer-events-none absolute top-1/2 right-2.5 hidden -translate-y-1/2 items-center gap-0.5 rounded-md border border-border bg-background/80 px-1.5 py-0.5 text-[0.65rem] font-medium text-muted-foreground sm:inline-flex">
+      <kbd className="pointer-events-none absolute top-1/2 right-2.5 hidden -translate-y-1/2 items-center gap-0.5 rounded-lg border border-white/[0.08] bg-white/[0.04] px-1.5 py-0.5 text-[0.65rem] font-medium text-muted-foreground sm:inline-flex">
         <span className="text-xs">⌘</span>K
       </kbd>
     </div>

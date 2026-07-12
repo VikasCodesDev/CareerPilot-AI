@@ -1,7 +1,15 @@
 import { connectToDatabase } from "@/lib/db";
+import {
+  hashPassword,
+  verifyPassword,
+  generateRandomToken,
+  hashToken,
+  verifyToken,
+} from "@/lib/crypto";
 import type { InterviewSessionDocument } from "@/models/InterviewSession";
 import type { PortfolioDocument } from "@/models/Portfolio";
 import type { RoadmapDocument } from "@/models/Roadmap";
+import type { UserDocument } from "@/models/User";
 import {
   userRepository,
   resumeRepository,
@@ -25,6 +33,13 @@ import type {
   IAgentMemory,
 } from "@/types/backend";
 
+interface RegisterUserInput {
+  name: string;
+  email: string;
+  password: string;
+  careerGoal?: string;
+}
+
 // ---------------------------------------------------------------------------
 // Auth Service
 // ---------------------------------------------------------------------------
@@ -33,28 +48,196 @@ export class AuthService {
   static async getUserByEmail(email: string): Promise<IUser | null> {
     await connectToDatabase();
     const doc = await userRepository.findByEmail(email);
-    return doc as unknown as IUser | null;
+    if (!doc) return null;
+    return this.toPublicUser(doc);
   }
 
   /** Lookup a user by their MongoDB _id */
   static async getUserById(id: string): Promise<IUser | null> {
     await connectToDatabase();
     const doc = await userRepository.findById(id);
-    return doc as unknown as IUser | null;
+    if (!doc) return null;
+    return this.toPublicUser(doc);
   }
 
-  /** Upsert a user record (OAuth sign-in flows) */
+  static async authenticateUser(
+    email: string,
+    password: string,
+  ): Promise<IUser | null> {
+    await connectToDatabase();
+    const existing = await userRepository.findByEmail(email);
+    if (!existing || !existing.passwordHash) return null;
+    const validPassword = verifyPassword(password, existing.passwordHash);
+    if (!validPassword) return null;
+    return this.toPublicUser(existing);
+  }
+
+  static async registerUser(input: RegisterUserInput): Promise<IUser> {
+    await connectToDatabase();
+    const normalizedEmail = input.email.toLowerCase();
+    const existing = await userRepository.findByEmail(normalizedEmail);
+    if (existing) {
+      throw new Error("A user with this email already exists.");
+    }
+
+    const verificationCode = Math.floor(
+      100000 + Math.random() * 900000,
+    ).toString();
+    const verificationTokenHash = hashToken(verificationCode);
+    const verificationExpires = new Date(Date.now() + 1000 * 60 * 60); // 1 hour
+    const passwordHash = hashPassword(input.password);
+
+    const created = await userRepository.create({
+      name: input.name,
+      email: normalizedEmail,
+      passwordHash,
+      role: "user",
+      emailVerified: false,
+      verificationTokenHash,
+      verificationExpires,
+      metadata: {
+        completedOnboarding: false,
+        careerGoal: input.careerGoal || "",
+        skills: [],
+      },
+    } as Partial<UserDocument>);
+
+    // Log the verification code in development for manual testing
+    if (process.env.NODE_ENV !== "production") {
+      console.info(
+        `Email verification code for ${normalizedEmail}: ${verificationCode}`,
+      );
+    }
+
+    return this.toPublicUser(created);
+  }
+
+  static async verifyEmailCode(email: string, code: string): Promise<boolean> {
+    await connectToDatabase();
+    const existing = await userRepository.findByEmail(email.toLowerCase());
+    if (
+      !existing ||
+      !existing.verificationTokenHash ||
+      !existing.verificationExpires
+    ) {
+      return false;
+    }
+
+    if (existing.emailVerified) {
+      return true;
+    }
+
+    if (existing.verificationExpires < new Date()) {
+      return false;
+    }
+
+    const validCode = verifyToken(code, existing.verificationTokenHash);
+    if (!validCode) {
+      return false;
+    }
+
+    await userRepository.updateById(existing._id.toString(), {
+      emailVerified: true,
+      verificationTokenHash: null,
+      verificationExpires: null,
+    } as Partial<UserDocument>);
+    return true;
+  }
+
+  static async sendPasswordResetLink(email: string): Promise<void> {
+    await connectToDatabase();
+    const existing = await userRepository.findByEmail(email.toLowerCase());
+    if (!existing) {
+      throw new Error("No account matches this email address.");
+    }
+
+    const resetToken = generateRandomToken(40);
+    const resetHash = hashToken(resetToken);
+    const resetExpiry = new Date(Date.now() + 1000 * 60 * 60); // 1 hour
+
+    await userRepository.updateById(existing._id.toString(), {
+      passwordResetTokenHash: resetHash,
+      passwordResetExpires: resetExpiry,
+    } as Partial<UserDocument>);
+
+    if (process.env.NODE_ENV !== "production") {
+      console.info(`Password reset token for ${email}: ${resetToken}`);
+    }
+  }
+
+  static async updateOnboarding(
+    userId: string,
+    metadata: Partial<{
+      completedOnboarding: boolean;
+      careerGoal: string;
+      targetRole: string;
+      skills: string[];
+    }>,
+  ): Promise<IUser> {
+    await connectToDatabase();
+    const existing = await userRepository.findById(userId);
+    if (!existing) {
+      throw new Error("User not found.");
+    }
+
+    const updated = await userRepository.updateById(userId, {
+      metadata: {
+        ...existing.metadata,
+        ...metadata,
+      },
+    } as Partial<UserDocument>);
+
+    if (!updated) {
+      throw new Error("Failed to update onboarding metadata.");
+    }
+
+    return this.toPublicUser(updated);
+  }
+
   static async upsertOAuthUser(
-    data: Pick<IUser, "name" | "email" | "image" | "role" | "metadata">
+    data: Pick<IUser, "name" | "email" | "image" | "role" | "metadata">,
   ): Promise<IUser> {
     await connectToDatabase();
     const existing = await userRepository.findByEmail(data.email);
     if (existing) {
-      const updated = await userRepository.updateById(existing._id.toString(), data);
-      return updated as unknown as IUser;
+      const updated = await userRepository.updateById(existing._id.toString(), {
+        name: data.name,
+        image: data.image,
+        role: data.role,
+        metadata: data.metadata,
+        emailVerified: true,
+      } as Partial<UserDocument>);
+
+      if (!updated) {
+        throw new Error("Failed to update OAuth user.");
+      }
+      return this.toPublicUser(updated);
     }
-    const created = await userRepository.create(data);
-    return created as unknown as IUser;
+    const created = await userRepository.create({
+      ...data,
+      email: data.email.toLowerCase(),
+      emailVerified: true,
+      passwordHash: null,
+    } as Partial<UserDocument>);
+    return this.toPublicUser(created);
+  }
+
+  private static toPublicUser(doc: UserDocument): IUser {
+    return {
+      _id: doc._id.toString(),
+      name: doc.name,
+      email: doc.email,
+      image: doc.image,
+      role: doc.role,
+      metadata: doc.metadata || {
+        completedOnboarding: false,
+        careerGoal: "",
+        targetRole: "",
+        skills: [],
+      },
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+    };
   }
 }
 
@@ -80,7 +263,10 @@ export class ResumeService {
   /** Create a resume record */
   static async createResume(
     userId: string,
-    data: Omit<IResume, "_id" | "userId" | "createdAt" | "updatedAt"> & { originalName?: string; fileType?: string }
+    data: Omit<IResume, "_id" | "userId" | "createdAt" | "updatedAt"> & {
+      originalName?: string;
+      fileType?: string;
+    },
   ): Promise<IResume> {
     const doc = await ResumeStorageService.createResume(userId, {
       fileName: data.fileName,
@@ -119,14 +305,14 @@ export class RoadmapService {
   /** Create or replace a roadmap through the legacy service facade */
   static async upsertRoadmap(
     userId: string,
-    data: Omit<IRoadmap, "_id" | "userId" | "createdAt" | "updatedAt">
+    data: Omit<IRoadmap, "_id" | "userId" | "createdAt" | "updatedAt">,
   ): Promise<IRoadmap> {
     await connectToDatabase();
     const existing = await roadmapRepository.findByUserId(userId);
     if (existing) {
       const updated = await roadmapRepository.updateById(
         existing._id.toString(),
-        data as unknown as Partial<RoadmapDocument>
+        data as unknown as Partial<RoadmapDocument>,
       );
       return updated as unknown as IRoadmap;
     }
@@ -206,7 +392,7 @@ export class PortfolioService {
   /** Create a portfolio for a user */
   static async createPortfolio(
     userId: string,
-    data: Omit<IPortfolio, "_id" | "userId" | "createdAt" | "updatedAt">
+    data: Omit<IPortfolio, "_id" | "userId" | "createdAt" | "updatedAt">,
   ): Promise<IPortfolio> {
     await connectToDatabase();
     const doc = await portfolioRepository.create({
@@ -232,7 +418,7 @@ export class InterviewService {
   static async startSession(
     userId: string,
     targetRole: string,
-    difficulty: "beginner" | "intermediate" | "advanced"
+    difficulty: "beginner" | "intermediate" | "advanced",
   ): Promise<IInterviewSession> {
     await connectToDatabase();
     const difficultyMap = {
@@ -270,10 +456,14 @@ export class NotificationService {
   /** Create and dispatch a notification */
   static async send(
     userId: string,
-    data: Pick<INotification, "title" | "message" | "type" | "link">
+    data: Pick<INotification, "title" | "message" | "type" | "link">,
   ): Promise<INotification> {
     await connectToDatabase();
-    const doc = await notificationRepository.create({ ...data, userId, read: false });
+    const doc = await notificationRepository.create({
+      ...data,
+      userId,
+      read: false,
+    });
     return doc as unknown as INotification;
   }
 
@@ -289,7 +479,9 @@ export class NotificationService {
 // ---------------------------------------------------------------------------
 export class AgentMemoryService {
   /** Retrieve memory for a session */
-  static async getMemoryBySession(sessionId: string): Promise<IAgentMemory | null> {
+  static async getMemoryBySession(
+    sessionId: string,
+  ): Promise<IAgentMemory | null> {
     await connectToDatabase();
     const doc = await agentMemoryRepository.findBySessionId(sessionId);
     return doc as unknown as IAgentMemory | null;
@@ -307,16 +499,19 @@ export class AgentMemoryService {
     userId: string,
     sessionId: string,
     contextSummary: string,
-    chatHistory: IAgentMemory["chatHistory"]
+    chatHistory: IAgentMemory["chatHistory"],
   ): Promise<IAgentMemory> {
     await connectToDatabase();
     const existing = await agentMemoryRepository.findBySessionId(sessionId);
     if (existing) {
-      const updated = await agentMemoryRepository.updateById(existing._id.toString(), {
-        contextSummary,
-        chatHistory,
-        lastInteractionTime: new Date(),
-      });
+      const updated = await agentMemoryRepository.updateById(
+        existing._id.toString(),
+        {
+          contextSummary,
+          chatHistory,
+          lastInteractionTime: new Date(),
+        },
+      );
       return updated as unknown as IAgentMemory;
     }
     const doc = await agentMemoryRepository.create({

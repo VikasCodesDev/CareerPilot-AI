@@ -9,9 +9,9 @@ export type AIAgentName =
   | "Opportunity Agent"
   | "Interview Agent";
 
-export type AIProviderName = "groq" | "gemini" | "deterministic";
+export type AIProviderName = "groq" | "gemini";
 
-export type AIExecutionStatus = "success" | "fallback" | "failed";
+export type AIExecutionStatus = "success" | "failed";
 
 export interface AIWorkflowRequest {
   userId: string;

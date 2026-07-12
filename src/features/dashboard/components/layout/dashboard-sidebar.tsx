@@ -1,6 +1,6 @@
 "use client";
 
-import { PanelLeftClose, PanelLeftOpen, Zap } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen, Sparkles, Zap } from "lucide-react";
 import Link from "next/link";
 import { memo } from "react";
 import { motion } from "framer-motion";
@@ -31,24 +31,28 @@ function DashboardSidebarComponent({
       variants={sidebarVariants}
       transition={dashboardTransition}
       className={cn(
-        "hidden h-full shrink-0 flex-col border-r border-sidebar-border bg-sidebar/95 backdrop-blur-xl lg:flex",
+        "workspace-sidebar-glow hidden h-full shrink-0 flex-col border-r border-white/[0.06] bg-zinc-950/85 backdrop-blur-2xl lg:flex",
         className
       )}
       aria-label="Dashboard sidebar"
     >
-      <div className="flex h-16 items-center justify-between gap-2 border-b border-sidebar-border px-4">
+      <div className="relative flex h-16 items-center justify-between gap-2 border-b border-white/[0.06] px-4">
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"
+          aria-hidden="true"
+        />
         <Link
           href="/dashboard"
           className="flex min-w-0 items-center gap-2.5 no-underline"
           aria-label="CareerPilot dashboard home"
         >
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-lg gradient-primary">
+          <div className="relative flex size-9 shrink-0 items-center justify-center rounded-xl gradient-primary shadow-[0_0_20px_rgba(139,92,246,0.35)]">
             <Zap className="size-4 text-primary-foreground" aria-hidden="true" />
           </div>
           {!collapsed ? (
             <div className="min-w-0">
               <p className="truncate text-sm font-bold tracking-tight">CareerPilot</p>
-              <p className="truncate text-[0.65rem] text-muted-foreground">Workspace</p>
+              <p className="truncate text-[0.65rem] text-muted-foreground">AI Workspace</p>
             </div>
           ) : null}
         </Link>
@@ -67,7 +71,12 @@ function DashboardSidebarComponent({
         </Button>
       </div>
 
-      <nav className="scrollbar-subtle flex-1 overflow-y-auto px-3 py-4">
+      <nav className="scrollbar-subtle flex-1 overflow-y-auto px-3 py-5">
+        {!collapsed ? (
+          <p className="mb-3 px-3 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground/70">
+            Workspace
+          </p>
+        ) : null}
         <ul className="space-y-1" role="list">
           {DASHBOARD_NAV_ITEMS.map((item) => (
             <li key={item.id}>
@@ -82,13 +91,20 @@ function DashboardSidebarComponent({
       </nav>
 
       {!collapsed ? (
-        <div className="border-t border-sidebar-border p-4">
-          <div className="rounded-xl border border-border bg-muted/30 p-3">
-            <p className="text-xs font-semibold">Pro Workspace</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Unlock advanced AI agents and analytics.
+        <div className="border-t border-white/[0.06] p-4">
+          <div className="workspace-card relative overflow-hidden rounded-2xl p-4">
+            <div
+              className="pointer-events-none absolute -top-6 -right-6 size-24 rounded-full bg-primary/20 blur-2xl"
+              aria-hidden="true"
+            />
+            <div className="relative flex items-center gap-2">
+              <Sparkles className="size-4 text-primary" aria-hidden="true" />
+              <p className="text-xs font-semibold">Pro Workspace</p>
+            </div>
+            <p className="relative mt-1.5 text-xs leading-5 text-muted-foreground">
+              Unlock advanced AI agents, analytics, and priority orchestration.
             </p>
-            <Button size="sm" className="mt-3 w-full">
+            <Button size="sm" className="relative mt-3 w-full">
               Upgrade
             </Button>
           </div>

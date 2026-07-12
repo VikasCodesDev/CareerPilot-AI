@@ -17,6 +17,7 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
   let fileType = "";
   let fileSize = 0;
   let parentResumeId = "";
+  let fileContent: ArrayBuffer | Uint8Array | Buffer | undefined;
 
   // 2. Parse request payload (FormData or JSON)
   const contentType = req.headers.get("content-type") || "";
@@ -32,25 +33,33 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
     originalName = file.name;
     fileType = file.type;
     fileSize = file.size;
+    fileContent = await file.arrayBuffer();
   } else {
-    // JSON fallback
+    // Support JSON uploads with base64-encoded file content.
     const body = await req.json();
     const validation = ResumeValidationService.validateUploadRequest(body);
     if (!validation.success) {
       return apiError(validation.error.issues[0]?.message || "Invalid request body.", 400);
     }
+
+    if (!body.fileContentBase64) {
+      return apiError("fileContentBase64 is required for JSON resume uploads.", 400);
+    }
+
     originalName = body.originalName;
     fileType = body.fileType;
     fileSize = body.fileSize;
     parentResumeId = body.parentResumeId || "";
+    fileContent = Buffer.from(body.fileContentBase64, "base64");
   }
 
-  // 3. Simulates the file upload (validates internally)
+  // 3. Upload the resume file and persist metadata
   try {
     const uploadResult = await ResumeUploadService.uploadResume(
       originalName,
       fileType,
-      fileSize
+      fileSize,
+      fileContent
     );
 
     // 4. Save to Database

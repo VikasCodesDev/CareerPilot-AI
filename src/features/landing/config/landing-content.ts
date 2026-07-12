@@ -63,7 +63,7 @@ export const HERO_CONTENT = {
   headingAccent: "intelligent precision",
   subheading:
     "CareerPilot AI orchestrates resume optimization, interview preparation, and personalized roadmaps through autonomous agents that work while you focus on what matters.",
-  primaryCta: { label: "Start Free", href: "#features" },
+  primaryCta: { label: "Start Free", href: "/login" },
   secondaryCta: { label: "See How It Works", href: "#how-it-works" },
 } as const;
 

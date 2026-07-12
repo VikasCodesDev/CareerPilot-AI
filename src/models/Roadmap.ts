@@ -100,7 +100,6 @@ const ResourceSchema = new Schema<RoadmapResource>(
     type: { type: String, required: true },
     phase: { type: String, required: true },
     description: { type: String, required: true },
-    placeholder: { type: Boolean, default: true },
   },
   { _id: false }
 );

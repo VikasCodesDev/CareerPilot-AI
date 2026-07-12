@@ -8,13 +8,11 @@ const envSchema = z.object({
     .string()
     .min(8, { message: "NEXTAUTH_SECRET must be at least 8 characters long" }),
   NEXTAUTH_URL: z.string().url({ message: "NEXTAUTH_URL must be a valid URL" }),
-  GOOGLE_CLIENT_ID: z
-    .string()
-    .min(1, { message: "GOOGLE_CLIENT_ID is required" }),
-  GOOGLE_CLIENT_SECRET: z
-    .string()
-    .min(1, { message: "GOOGLE_CLIENT_SECRET is required" }),
-  GROQ_API_KEY: z.string().min(1, { message: "GROQ_API_KEY is required" }),
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  GITHUB_CLIENT_ID: z.string().optional(),
+  GITHUB_CLIENT_SECRET: z.string().optional(),
+  GROQ_API_KEY: z.string().optional(),
   GEMINI_API_KEY: z.string().optional(),
   JWT_SECRET: z
     .string()
@@ -23,6 +21,12 @@ const envSchema = z.object({
     .enum(["development", "production", "test"])
     .default("development"),
 });
+
+const BUILD_SENTINEL_PREFIX = "__careerpilot_build_";
+
+function isBuildSentinel(value: unknown): boolean {
+  return String(value ?? "").startsWith(BUILD_SENTINEL_PREFIX);
+}
 
 function validateEnv() {
   // Build-time defaults keep static compilation deterministic; deployments must supply real values.
@@ -36,26 +40,28 @@ function validateEnv() {
     NEXTAUTH_SECRET:
       process.env.NEXTAUTH_SECRET ||
       process.env.AUTH_SECRET ||
-      (isBuild ? "placeholder-secret-for-build" : undefined),
+      (isBuild ? `${BUILD_SENTINEL_PREFIX}nextauth_secret__` : undefined),
     NEXTAUTH_URL:
       process.env.NEXTAUTH_URL ||
       (isBuild ? "http://localhost:3000" : undefined),
     GOOGLE_CLIENT_ID:
       process.env.GOOGLE_CLIENT_ID ||
-      (isBuild ? "placeholder-google-id" : undefined),
+      (isBuild ? `${BUILD_SENTINEL_PREFIX}google_id__` : undefined),
     GOOGLE_CLIENT_SECRET:
       process.env.GOOGLE_CLIENT_SECRET ||
-      (isBuild ? "placeholder-google-secret" : undefined),
+      (isBuild ? `${BUILD_SENTINEL_PREFIX}google_secret__` : undefined),
+    GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
+    GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
     GROQ_API_KEY:
       process.env.GROQ_API_KEY ||
-      (isBuild ? "placeholder-groq-key" : undefined),
+      (isBuild ? `${BUILD_SENTINEL_PREFIX}groq_key__` : undefined),
     GEMINI_API_KEY:
       process.env.GEMINI_API_KEY ||
-      (isBuild ? "placeholder-gemini-key" : undefined),
+      (isBuild ? `${BUILD_SENTINEL_PREFIX}gemini_key__` : undefined),
     JWT_SECRET:
       process.env.JWT_SECRET ||
       process.env.AUTH_SECRET ||
-      (isBuild ? "placeholder-jwt-secret" : undefined),
+      (isBuild ? `${BUILD_SENTINEL_PREFIX}jwt_secret__` : undefined),
     NODE_ENV: process.env.NODE_ENV,
   };
 
@@ -78,9 +84,19 @@ function validateEnv() {
       ["NEXTAUTH_URL", parsed.data.NEXTAUTH_URL],
       ["GOOGLE_CLIENT_ID", parsed.data.GOOGLE_CLIENT_ID],
       ["GOOGLE_CLIENT_SECRET", parsed.data.GOOGLE_CLIENT_SECRET],
-      ["GROQ_API_KEY", parsed.data.GROQ_API_KEY],
       ["JWT_SECRET", parsed.data.JWT_SECRET],
-    ].filter(([, value]) => !value || String(value).includes("placeholder"));
+    ].filter(([, value]) => !value || isBuildSentinel(value));
+
+    const hasAIProviderKey =
+      Boolean(parsed.data.GROQ_API_KEY && !isBuildSentinel(parsed.data.GROQ_API_KEY)) ||
+      Boolean(parsed.data.GEMINI_API_KEY && !isBuildSentinel(parsed.data.GEMINI_API_KEY));
+
+    if (!hasAIProviderKey) {
+      productionIssues.push([
+        "GROQ_API_KEY / GEMINI_API_KEY",
+        "must set at least one valid AI provider key",
+      ]);
+    }
 
     if (productionIssues.length > 0) {
       const formattedIssues = productionIssues
@@ -88,8 +104,7 @@ function validateEnv() {
         .join("\n");
 
       throw new Error(
-        "Production environment configuration is incomplete:\n" +
-          formattedIssues,
+        "Production environment configuration is incomplete:\n" + formattedIssues,
       );
     }
   }

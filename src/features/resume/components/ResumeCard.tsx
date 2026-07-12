@@ -69,7 +69,6 @@ export function ResumeCard({ resume, onDelete, className }: ResumeCardProps) {
             {formatFileSize(resume.fileSize)} · v{resume.version}
           </p>
         </div>
-        {/* Action menu trigger (placeholder for future dropdown) */}
         <button
           className="flex size-7 shrink-0 items-center justify-center rounded-lg opacity-0 transition-opacity hover:bg-muted group-hover:opacity-100 focus-visible:opacity-100"
           aria-label="More actions"

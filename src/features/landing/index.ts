@@ -16,3 +16,4 @@ export { RoadmapPreviewSection } from "./components/roadmap-preview-section";
 export { TestimonialsSection } from "./components/testimonials-section";
 export { FaqSection } from "./components/faq-section";
 export { FooterSection } from "./components/footer-section";
+export { CtaSection } from "./components/cta-section";

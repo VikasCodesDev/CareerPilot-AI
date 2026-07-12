@@ -2,6 +2,7 @@ import { AI_AGENT_KEYWORDS, AI_AGENT_ORDER } from "@/features/ai/constants";
 import type {
   AIAgentName,
   AIExecutionStep,
+  AIProviderName,
   AIWorkflowRequest,
   AIWorkflowResponse,
 } from "@/features/ai/types";
@@ -19,7 +20,7 @@ function selectAgents(request: AIWorkflowRequest): AIAgentName[] {
     : ["Goal Analyzer", "Skill Gap Agent", "Roadmap Agent", "Planner Agent", "Analytics Agent"];
 }
 
-function createAgentStep(agent: AIAgentName, request: AIWorkflowRequest, provider: "groq" | "gemini" | "deterministic", executionTimeMs: number): AIExecutionStep {
+function createAgentStep(agent: AIAgentName, request: AIWorkflowRequest, provider: AIProviderName, executionTimeMs: number): AIExecutionStep {
   const role = request.goal;
   const recommendations: Record<AIAgentName, string[]> = {
     "Goal Analyzer": [`Clarify success criteria for ${role}.`, "Convert the goal into weekly milestones."],
@@ -36,7 +37,7 @@ function createAgentStep(agent: AIAgentName, request: AIWorkflowRequest, provide
   return {
     id: generateId("ai-step"),
     agent,
-    status: provider === "deterministic" ? "fallback" : "success",
+    status: "success",
     summary: `${agent} processed the goal using ${provider} execution.`,
     recommendations: recommendations[agent],
     warnings: agent === "Opportunity Agent" ? ["Opportunities are guidance, not guaranteed outcomes."] : [],

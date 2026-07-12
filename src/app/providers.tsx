@@ -1,6 +1,7 @@
 "use client";
 
 import { CareerPilotThemeProvider } from "./theme-provider";
+import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/features/auth/providers/auth-provider";
 
 type AppProvidersProps = Readonly<{
@@ -10,7 +11,10 @@ type AppProvidersProps = Readonly<{
 export function AppProviders({ children }: AppProvidersProps) {
   return (
     <AuthProvider>
-      <CareerPilotThemeProvider>{children}</CareerPilotThemeProvider>
+      <CareerPilotThemeProvider>
+        {children}
+        <Toaster />
+      </CareerPilotThemeProvider>
     </AuthProvider>
   );
 }

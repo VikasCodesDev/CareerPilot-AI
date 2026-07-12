@@ -2,30 +2,17 @@
 
 import { memo } from "react";
 
+import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 
 type ProgressBarProps = {
   value: number;
   className?: string;
+  label?: string;
 };
 
-function ProgressBarComponent({ value, className }: ProgressBarProps) {
-  const safeValue = Math.max(0, Math.min(100, value));
-
-  return (
-    <div
-      className={cn("h-2 overflow-hidden rounded-full bg-muted", className)}
-      role="progressbar"
-      aria-valuenow={safeValue}
-      aria-valuemin={0}
-      aria-valuemax={100}
-    >
-      <div
-        className="h-full rounded-full bg-[image:var(--gradient-primary)] transition-all duration-500"
-        style={{ width: `${safeValue}%` }}
-      />
-    </div>
-  );
+function ProgressBarComponent({ value, className, label }: ProgressBarProps) {
+  return <Progress value={value} className={cn(className)} label={label} showValue={Boolean(label)} />;
 }
 
 export const ProgressBar = memo(ProgressBarComponent);
